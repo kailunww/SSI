@@ -3,9 +3,15 @@ from model import Trader, Log, LogManager, Bar, Result
 import math
 
 
-bars = parse_csv("data\AUDUSD_D1_HistoricalSSI.csv")
+# bars = parse_csv("data\AUDUSD_D1_HistoricalSSI.csv")
+# bars = parse_csv("data\AUDUSD_H4_HistoricalSSI.csv")
+bars = parse_csv("data\AUDUSD_H1_HistoricalSSI.csv")
 # bars = parse_csv("data\GBPUSD_D1_HistoricalSSI.csv")
+# bars = parse_csv("data\GBPUSD_H4_HistoricalSSI.csv")
+# bars = parse_csv("data\GBPUSD_H1_HistoricalSSI.csv")
 # bars = parse_csv("data\EURUSD_D1_HistoricalSSI.csv")
+# bars = parse_csv("data\EURUSD_H4_HistoricalSSI.csv")
+# bars = parse_csv("data\EURUSD_H1_HistoricalSSI.csv")
 base_unit = 100000
 THRESHOLD = 4
 trader = Trader()
