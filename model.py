@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+import setting
 
 
 class Log:
@@ -23,23 +24,6 @@ class LogManager:
 
     def highest(self):
         return max([log.equity for log in self.logs])
-
-
-class Result:
-
-    def __init__(self, capital, equity, trade_count, year_count, lowest, highest):
-        self.capital = capital
-        self.equity = equity
-        self.trade_count = trade_count
-        self.year_count = year_count
-        self.lowest = lowest
-        self.highest = highest
-        self.ror = (equity - capital) / capital
-        self.annual_ror = math.exp(math.log(1 + self.ror)/year_count) - 1
-
-    def output(self):
-        for key, value in vars(self).items():
-            print("%s = %s" % (key, value))
 
 
 class Bar:
@@ -78,7 +62,7 @@ class BarManager:
 
 class Trader:
 
-    def __init__(self, capital, margin):
+    def __init__(self, capital=setting.CAPITAL, margin=setting.MARGIN):
         self.capital = capital
         self.margin = margin
         self.virtual = 0
@@ -92,7 +76,7 @@ class Trader:
         print(ex_date.isoformat(), "buy @ %s for %s unit" % (price, unit), self.capital, self.stock, bar.ssi)
         self.virtual -= price * unit
         self.stock += unit
-        self.update_value(price)
+        self.update_value(bar)
         self.trade_count += 1
         print(self.equity, self.virtual, self.value)
         if self.equity < abs(self.value) * self.margin:
@@ -102,12 +86,11 @@ class Trader:
 
     def sell(self, bar: Bar, unit):
         price = bar.close_bid
-        # price = bar.close_ask
         ex_date = datetime.fromtimestamp(bar.timestamp)
         print(ex_date.isoformat(), "sell @ %s for %s unit" % (price, unit), self.capital, self.stock, bar.ssi)
         self.virtual += price * unit
         self.stock -= unit
-        self.update_value(price)
+        self.update_value(bar)
         self.trade_count += 1
         print(self.equity, self.virtual, self.value)
         if self.equity < abs(self.value) * self.margin:
@@ -122,9 +105,29 @@ class Trader:
         elif self.stock < 0:
             self.buy(bar, -self.stock)
 
-    def update_value(self, price):
-        self.value = price * self.stock
+    def update_value(self, bar: Bar):
+        if self.stock > 0:
+            self.value = self.stock * bar.close_bid
+        else:
+            self.value = self.stock * bar.close_ask
 
     @property
     def equity(self):
         return self.capital + self.value + self.virtual
+
+
+class Result:
+
+    def __init__(self, trader: Trader, year_count, logs: LogManager):
+        self.capital = trader.capital
+        self.equity = trader.equity
+        self.trade_count = trader.trade_count
+        self.year_count = year_count
+        self.lowest = logs.lowest()
+        self.highest = logs.highest()
+        self.ror = (self.equity - self.capital) / self.capital
+        self.annual_ror = math.exp(math.log(1 + self.ror)/year_count) - 1
+
+    def output(self):
+        for key, value in vars(self).items():
+            print("%s = %s" % (key, value))

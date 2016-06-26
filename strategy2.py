@@ -7,13 +7,8 @@ bars = parse_csv("data\AUDUSD_D1_HistoricalSSI.csv")
 # bars = parse_csv("data\GBPUSD_D1_HistoricalSSI.csv")
 # bars = parse_csv("data\EURUSD_D1_HistoricalSSI.csv")
 base_unit = 100000
-capital = 10000
-margin = 0.02
-trade_count = 0
-MAX_LIMIT = 8
-IGNORE = 0
-THRESHOLD = 3
-trader = Trader(capital=capital, margin=margin)
+THRESHOLD = 4
+trader = Trader()
 logs = LogManager()
 for bar in bars.bars:
     ssi = bar.ssi
@@ -50,13 +45,10 @@ for bar in bars.bars:
                 equity=trader.equity,
                 stock=trader.stock,
             ))
-trader.update_value(bars.last().close_bid)
+trader.update_value(bars.last())
 result = Result(
-    capital=capital,
-    equity=trader.equity,
-    trade_count=trader.trade_count,
+    trader=trader,
     year_count=bars.year_count,
-    lowest=logs.lowest(),
-    highest=logs.highest(),
+    logs=logs,
 )
 result.output()
